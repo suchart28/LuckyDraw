@@ -3,193 +3,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lucky Draw System</title>
+    <title>Grand Lucky Draw 2024</title>
     <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
         :root {
-            --primary: #ff4757;
-            --secondary: #2f3542;
-            --accent: #eccc68;
-            --bg: #f1f2f6;
-            --success: #2ed573;
+            --primary: #ff0055;
+            --secondary: #1a1a2e;
+            --accent: #00fff2;
+            --gold: #ffcc00;
+            --bg: #0f0f1b;
         }
 
         body {
             font-family: 'Chakra Petch', sans-serif;
-            background-color: var(--bg);
+            background: var(--bg);
+            background-image: radial-gradient(circle at 50% 50%, #1a1a3a 0%, #0f0f1b 100%);
             margin: 0;
             padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            color: white;
         }
 
         .container {
             width: 100%;
-            max-width: 500px;
-            background: white;
-            padding: 2rem;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 2.5rem;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
-        h1 { font-weight: 700; color: var(--primary); margin-top: 0; }
+        h1 { 
+            font-size: 3rem;
+            font-weight: 700; 
+            margin-top: 0;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px rgba(255,0,85,0.5));
+        }
 
-        /* ส่วนซ่อนรายชื่อ */
-        .input-section { margin-bottom: 1.5rem; text-align: left; }
-        .toggle-input {
-            background: #eee;
-            border: none;
+        /* Input Controls */
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+
+        .btn-tool {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
             padding: 8px 15px;
-            border-radius: 5px;
+            border-radius: 10px;
             cursor: pointer;
             font-family: 'Chakra Petch';
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-        }
-        #nameInput {
-            width: 100%;
-            height: 100px;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-family: 'Chakra Petch';
-            box-sizing: border-box;
-            display: none; /* ซ่อนเริ่มต้น */
+            transition: 0.3s;
         }
 
-        /* Slot Machine */
-        .slot-container {
-            height: 100px;
-            overflow: hidden;
-            border: 4px solid var(--secondary);
+        .btn-tool:hover { background: rgba(255,255,255,0.2); }
+        .btn-reset { color: #ff4757; border-color: #ff4757; }
+        .btn-reset:hover { background: #ff4757; color: white; }
+
+        #nameInput {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--accent);
             border-radius: 15px;
-            margin: 20px 0;
-            background: #fff;
-            position: relative;
+            color: var(--accent);
+            font-family: 'Chakra Petch';
+            margin-bottom: 15px;
+            display: none;
+            resize: none;
         }
+
+        /* Slot Machine Ultra */
+        .slot-container {
+            height: 120px;
+            overflow: hidden;
+            border: 3px solid var(--accent);
+            border-radius: 20px;
+            margin: 25px 0;
+            background: #000;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 255, 242, 0.3), inset 0 0 15px rgba(0, 255, 242, 0.2);
+        }
+
+        .slot-container::before, .slot-container::after {
+            content: '';
+            position: absolute;
+            left: 0; width: 100%; height: 30%; z-index: 2;
+            pointer-events: none;
+        }
+        .slot-container::before { top: 0; background: linear-gradient(to bottom, black, transparent); }
+        .slot-container::after { bottom: 0; background: linear-gradient(to top, black, transparent); }
 
         .slot-wrapper {
             position: absolute;
-            top: 0;
-            width: 100%;
+            top: 0; width: 100%;
             will-change: transform;
         }
 
         .slot-item {
-            height: 100px;
-            line-height: 100px;
-            font-size: 1.8rem;
+            height: 120px;
+            line-height: 120px;
+            font-size: 2.2rem;
             font-weight: bold;
-            color: var(--secondary);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            color: #fff;
+            text-shadow: 0 0 10px var(--accent);
         }
 
         .btn-spin {
-            background: var(--primary);
+            background: linear-gradient(45deg, var(--primary), #ff00ff);
             color: white;
             border: none;
-            padding: 15px 40px;
-            font-size: 1.2rem;
+            padding: 18px;
+            font-size: 1.5rem;
             font-family: 'Chakra Petch';
             font-weight: bold;
-            border-radius: 50px;
+            border-radius: 15px;
             cursor: pointer;
             width: 100%;
-            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 10px 20px rgba(255, 0, 85, 0.4);
+            transition: 0.3s;
         }
 
-        .btn-spin:disabled { background: #ccc; box-shadow: none; }
+        .btn-spin:active { transform: scale(0.95); }
+        .btn-spin:disabled { opacity: 0.5; filter: grayscale(1); cursor: not-allowed; }
 
-        /* รายชื่อผู้โชคดี */
+        /* Winner List */
         .history-container {
             width: 100%;
-            max-width: 500px;
-            background: #fff;
-            border-radius: 15px;
+            max-width: 600px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
             padding: 1.5rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
         }
         .history-title {
-            font-weight: 700;
-            border-bottom: 2px solid var(--bg);
-            padding-bottom: 10px;
+            color: var(--gold);
+            font-size: 1.2rem;
+            font-weight: bold;
             margin-bottom: 10px;
-            color: var(--success);
+            display: flex;
+            justify-content: space-between;
         }
         #winnerList {
             list-style: none;
             padding: 0;
-            margin: 0;
-            max-height: 200px;
-            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
         }
         .winner-entry {
+            background: rgba(255,204,0,0.1);
+            border: 1px solid var(--gold);
             padding: 8px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            animation: fadeIn 0.5s ease;
         }
 
-        /* Overlay */
+        /* Winner Overlay */
         #winner-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.95);
             display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 1000;
         }
+        
         .winner-card {
-            background: var(--accent);
-            padding: 3rem;
-            border-radius: 25px;
+            background: linear-gradient(135deg, #222, #000);
+            padding: 4rem;
+            border-radius: 40px;
             text-align: center;
+            border: 4px solid var(--gold);
+            box-shadow: 0 0 100px var(--gold);
+            position: relative;
             transform: scale(0);
-            animation: popUp 0.5s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        @keyframes popUp { to { transform: scale(1); } }
+        .flash-effect {
+            animation: flash 0.2s infinite;
+        }
+
+        @keyframes flash {
+            0% { background: rgba(255,255,255,0.1); }
+            50% { background: rgba(0,255,242,0.2); }
+            100% { background: rgba(255,0,85,0.1); }
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Lucky Draw</h1>
+<div class="container" id="mainContainer">
+    <h1>LUCKY DRAW</h1>
     
-    <div class="input-section">
-        <button class="toggle-input" onclick="toggleInput()">✏️ แก้ไขรายชื่อ (ซ่อนอยู่)</button>
-        <textarea id="nameInput" placeholder="ใส่รายชื่อ 1 ชื่อต่อ 1 บรรทัด..."></textarea>
+    <div class="controls">
+        <button class="btn-tool" onclick="toggleInput()">✏️ รายชื่อ</button>
+        <button class="btn-tool btn-reset" onclick="resetAll()">🗑️ ล้างข้อมูล</button>
     </div>
+    
+    <textarea id="nameInput" placeholder="ใส่ชื่อ 1 บรรทัด ต่อ 1 ชื่อ..."></textarea>
     
     <div class="slot-container">
         <div id="slotWrapper" class="slot-wrapper">
-            <div class="slot-item">พร้อมแล้วสุ่มเลย!</div>
+            <div class="slot-item">READY TO SPIN</div>
         </div>
     </div>
 
-    <button id="spinBtn" class="btn-spin" onclick="startSpin()">SPIN!</button>
+    <button id="spinBtn" class="btn-spin" onclick="startSpin()">SPIN NOW!</button>
 </div>
 
 <div class="history-container">
-    <div class="history-title">🏆 รายชื่อผู้โชคดี</div>
-    <ul id="winnerList">
-        </ul>
+    <div class="history-title">
+        <span>🏆 WINNERS HISTORY</span>
+        <span id="winCount" style="color:white">0</span>
+    </div>
+    <div id="winnerList"></div>
 </div>
 
 <div id="winner-overlay">
-    <div class="winner-card">
-        <h2 style="margin:0">🎊 ยินดีด้วยคุณ 🎊</h2>
-        <p id="winnerName" style="font-size: 3rem; font-weight: bold; margin: 15px 0;"></p>
+    <div class="winner-card" id="winCard">
+        <h2 style="color: var(--gold); letter-spacing: 5px;">CONGRATULATIONS</h2>
+        <p id="winnerName" style="font-size: 4rem; font-weight: 800; margin: 20px 0; color: white; text-shadow: 0 0 20px var(--gold);"></p>
+        <div style="color: var(--accent)">YOU ARE THE LUCKY ONE!</div>
     </div>
 </div>
 
@@ -200,58 +257,68 @@
     const winnerOverlay = document.getElementById('winner-overlay');
     const winnerName = document.getElementById('winnerName');
     const winnerListUI = document.getElementById('winnerList');
+    const winCountUI = document.getElementById('winCount');
+    const mainContainer = document.getElementById('mainContainer');
 
-    // ระบบเสียง (Web Audio API)
+    let winners = [];
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    
-    function playSpinSound() {
+
+    // ระบบเสียงอลังการ
+    function playSound(type) {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.type = 'square';
-        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.1);
-    }
 
-    function playWinSound() {
-        const notes = [523.25, 659.25, 783.99, 1046.50];
-        notes.forEach((freq, i) => {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime + i * 0.1);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime + i * 0.1);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.1 + 0.3);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start(audioCtx.currentTime + i * 0.1);
-            osc.stop(audioCtx.currentTime + i * 0.1 + 0.4);
-        });
+        if (type === 'spin') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(200 + Math.random() * 100, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        } else if (type === 'win') {
+            const now = audioCtx.currentTime;
+            [440, 554, 659, 880].forEach((f, i) => {
+                const o = audioCtx.createOscillator();
+                const g = audioCtx.createGain();
+                o.type = 'triangle';
+                o.frequency.setValueAtTime(f, now + i * 0.1);
+                g.gain.setValueAtTime(0.1, now + i * 0.1);
+                g.gain.exponentialRampToValueAtTime(0.01, now + i * 0.1 + 0.5);
+                o.connect(g); g.connect(audioCtx.destination);
+                o.start(now + i * 0.1); o.stop(now + i * 0.1 + 0.5);
+            });
+        }
     }
 
     function toggleInput() {
-        const isHidden = nameInput.style.display === 'none' || nameInput.style.display === '';
-        nameInput.style.display = isHidden ? 'block' : 'none';
+        nameInput.style.display = (nameInput.style.display === 'none' || nameInput.style.display === '') ? 'block' : 'none';
+    }
+
+    function resetAll() {
+        if (confirm("ต้องการล้างรายชื่อและประวัติผู้โชคดีทั้งหมดใช่หรือไม่?")) {
+            nameInput.value = "";
+            winnerListUI.innerHTML = "";
+            winners = [];
+            winCountUI.textContent = "0";
+            slotWrapper.innerHTML = '<div class="slot-item">CLEARED</div>';
+        }
     }
 
     function startSpin() {
         const names = nameInput.value.trim().split('\n').filter(n => n.trim() !== '');
-        if (names.length === 0) return alert('กรุณาใส่รายชื่อก่อนครับ');
+        if (names.length === 0) return alert('ใส่รายชื่อก่อนนะครับ!');
 
-        // ซ่อนช่อง Input ทันทีที่เริ่มสุ่มเพื่อความลุ้น
-        nameInput.style.display = 'none';
         spinBtn.disabled = true;
+        nameInput.style.display = 'none';
 
         const winnerIndex = Math.floor(Math.random() * names.length);
         const winner = names[winnerIndex];
 
-        // สร้างรายการสุ่ม (Fake list for animation)
+        // สร้าง Effect รายชื่อวิ่ง
         let displayList = [];
-        for(let i=0; i<30; i++) displayList.push(names[Math.floor(Math.random()*names.length)]);
+        for(let i=0; i<40; i++) displayList.push(names[Math.floor(Math.random()*names.length)]);
         displayList.push(winner);
 
         slotWrapper.innerHTML = '';
@@ -262,44 +329,62 @@
             slotWrapper.appendChild(div);
         });
 
-        const itemHeight = 100;
         const duration = 4000;
-        
-        // เสียงประกอบขณะหมุน (เล่นซ้ำๆ)
-        const soundInterval = setInterval(playSpinSound, 120);
+        const soundInterval = setInterval(() => playSound('spin'), 100);
 
         slotWrapper.style.transition = 'none';
         slotWrapper.style.transform = 'translateY(0)';
 
         setTimeout(() => {
-            slotWrapper.style.transition = `transform ${duration}ms cubic-bezier(0.1, 0, 0.1, 1)`;
-            slotWrapper.style.transform = `translateY(-${(displayList.length - 1) * itemHeight}px)`;
+            slotWrapper.style.transition = `transform ${duration}ms cubic-bezier(0.15, 0, 0.15, 1)`;
+            slotWrapper.style.transform = `translateY(-${(displayList.length - 1) * 120}px)`;
         }, 50);
+
+        // จังหวะก่อนหยุด (Flash Effect)
+        setTimeout(() => {
+            mainContainer.classList.add('flash-effect');
+        }, duration - 500);
 
         setTimeout(() => {
             clearInterval(soundInterval);
-            playWinSound();
+            mainContainer.classList.remove('flash-effect');
             showWinner(winner, names, winnerIndex);
         }, duration + 500);
     }
 
     function showWinner(winner, names, index) {
-        confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 } });
+        playSound('win');
+        
+        // พลุแบบกระจายหนัก
+        const duration = 3 * 1000;
+        const end = Date.now() + duration;
+
+        (function frame() {
+            confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#ff0055', '#00fff2'] });
+            confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#ffcc00', '#ffffff'] });
+            if (Date.now() < end) requestAnimationFrame(frame);
+        }());
+
         winnerName.textContent = winner;
         winnerOverlay.style.display = 'flex';
+        document.getElementById('winCard').style.transform = 'scale(1)';
+        document.getElementById('winCard').style.transition = '0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
 
-        // เพิ่มในรายการผู้โชคดี
-        const li = document.createElement('li');
-        li.className = 'winner-entry';
-        li.innerHTML = `<span>${winner}</span> <small style="color:#888">${new Date().toLocaleTimeString()}</small>`;
-        winnerListUI.prepend(li);
+        // อัปเดตประวัติ
+        winners.push(winner);
+        const div = document.createElement('div');
+        div.className = 'winner-entry';
+        div.textContent = `⭐ ${winner}`;
+        winnerListUI.prepend(div);
+        winCountUI.textContent = winners.length;
 
-        // ลบชื่อออกจากรายการหลัก
+        // ลบชื่อออกจากรายการ
         names.splice(index, 1);
         nameInput.value = names.join('\n');
 
         setTimeout(() => {
             winnerOverlay.style.display = 'none';
+            document.getElementById('winCard').style.transform = 'scale(0)';
             spinBtn.disabled = false;
         }, 5000);
     }
