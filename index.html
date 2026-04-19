@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grand Lucky Draw 2024</title>
+    <title>สุ่มรายชื่อหาผู้โชคดี</title>
     <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
@@ -216,7 +216,7 @@
 <body>
 
 <div class="container" id="mainContainer">
-    <h1>LUCKY DRAW</h1>
+    <h1>สุ่มหาผู้โชคดี</h1>
     
     <div class="controls">
         <button class="btn-tool" onclick="toggleInput()">✏️ รายชื่อ</button>
@@ -227,16 +227,16 @@
     
     <div class="slot-container">
         <div id="slotWrapper" class="slot-wrapper">
-            <div class="slot-item">READY TO SPIN</div>
+            <div class="slot-item">พร้อมทำการสุ่ม</div>
         </div>
     </div>
 
-    <button id="spinBtn" class="btn-spin" onclick="startSpin()">SPIN NOW!</button>
+    <button id="spinBtn" class="btn-spin" onclick="startSpin()">เริ่มสุ่ม!</button>
 </div>
 
 <div class="history-container">
     <div class="history-title">
-        <span>🏆 WINNERS HISTORY</span>
+        <span>รายชื่อผู้โชคดี</span>
         <span id="winCount" style="color:white">0</span>
     </div>
     <div id="winnerList"></div>
@@ -244,9 +244,9 @@
 
 <div id="winner-overlay">
     <div class="winner-card" id="winCard">
-        <h2 style="color: var(--gold); letter-spacing: 5px;">CONGRATULATIONS</h2>
+        <h2 style="color: var(--gold); letter-spacing: 5px;">ยินดี ยินดี</h2>
         <p id="winnerName" style="font-size: 4rem; font-weight: 800; margin: 20px 0; color: white; text-shadow: 0 0 20px var(--gold);"></p>
-        <div style="color: var(--accent)">YOU ARE THE LUCKY ONE!</div>
+        <div style="color: var(--accent)">คุณคือผู้โชคดี</div>
     </div>
 </div>
 
