@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lucky Draw</title>
+    <title>Lucky Draw - Protected</title>
     <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
@@ -22,16 +22,42 @@
             background-image: radial-gradient(circle at 50% 50%, #1a1a3a 0%, #0f0f1b 100%);
             margin: 0; padding: 20px;
             display: flex; flex-direction: column; align-items: center; min-height: 100vh; color: white;
+            overflow-x: hidden;
         }
 
+        /* --- Password Lock Screen --- */
+        #loginOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg); z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .login-box {
+            background: rgba(255,255,255,0.05); padding: 2rem; border-radius: 20px;
+            border: 1px solid var(--primary); text-align: center; width: 280px;
+        }
+        .login-box input {
+            width: 100%; padding: 12px; margin: 15px 0; border-radius: 10px; border: none;
+            text-align: center; font-size: 1.5rem; letter-spacing: 5px; font-family: 'Chakra Petch';
+            background: #000; color: var(--accent);
+        }
+        .btn-login {
+            background: var(--primary); color: white; border: none; padding: 10px 30px;
+            border-radius: 10px; cursor: pointer; font-family: 'Chakra Petch'; width: 100%;
+        }
+        .shake { animation: shake 0.4s; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* --- Main Content --- */
         .container {
             width: 100%; max-width: 600px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            padding: 2.5rem; border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            text-align: center; margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);
+            padding: 2.5rem; border-radius: 30px; border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); text-align: center; margin-bottom: 25px;
+            display: none; /* ซ่อนจนกว่าจะ Login */
         }
 
         h1 { 
@@ -44,7 +70,7 @@
 
         .btn-tool {
             background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);
-            padding: 8px 15px; border-radius: 10px; cursor: pointer; font-family: 'Chakra Petch'; transition: 0.3s;
+            padding: 8px 15px; border-radius: 10px; cursor: pointer; font-family: 'Chakra Petch';
         }
 
         #nameInput {
@@ -53,69 +79,54 @@
             font-family: 'Chakra Petch'; margin-bottom: 15px; display: none; resize: none;
         }
 
-        /* Slot Machine Area */
+        /* Slot Area */
         .slot-container {
             height: 120px; overflow: hidden; border: 3px solid var(--accent);
-            border-radius: 20px; margin: 25px 0; background: #000;
-            position: relative; box-shadow: 0 0 30px rgba(0, 255, 242, 0.2);
+            border-radius: 20px; margin: 25px 0; background: #000; position: relative;
+            box-shadow: 0 0 30px rgba(0, 255, 242, 0.2);
         }
-
-        /* เข็มชี้เป้ากลางจอ */
-        .slot-pointer {
-            position: absolute; top: 50%; left: 0; width: 100%; height: 4px;
-            background: var(--gold); transform: translateY(-50%); z-index: 5;
-            box-shadow: 0 0 15px var(--gold); opacity: 0.5;
-        }
-
         .slot-wrapper { position: absolute; top: 0; width: 100%; will-change: transform; }
-
-        .slot-item {
-            height: 120px; line-height: 120px; font-size: 2.5rem; font-weight: bold;
-            color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.5);
-            white-space: nowrap; overflow: hidden;
-        }
+        .slot-item { height: 120px; line-height: 120px; font-size: 2.5rem; font-weight: bold; }
 
         .btn-spin {
             background: linear-gradient(45deg, var(--primary), #ff00ff);
             color: white; border: none; padding: 20px; font-size: 1.5rem;
             font-family: 'Chakra Petch'; font-weight: bold; border-radius: 15px;
-            cursor: pointer; width: 100%; text-transform: uppercase;
-            box-shadow: 0 10px 20px rgba(255, 0, 85, 0.4); transition: 0.3s;
+            cursor: pointer; width: 100%; box-shadow: 0 10px 20px rgba(255, 0, 85, 0.4);
         }
 
-        .btn-spin:disabled { opacity: 0.3; filter: grayscale(1); }
-
-        /* ประวัติ */
         .history-container {
             width: 100%; max-width: 600px; background: rgba(0,0,0,0.3);
             border-radius: 20px; padding: 1.5rem; border: 1px solid rgba(255,255,255,0.1);
+            display: none;
         }
-        #winnerList {
-            list-style: none; padding: 0; display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;
-        }
-        .winner-entry {
-            background: rgba(255,204,0,0.1); border: 1px solid var(--gold);
-            padding: 8px; border-radius: 8px; font-size: 0.9rem; text-align: center;
-        }
+        #winnerList { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+        .winner-entry { background: rgba(255,204,0,0.1); border: 1px solid var(--gold); padding: 8px; border-radius: 8px; font-size: 0.9rem; text-align: center; }
 
-        /* Overlay */
+        /* Overlay Winner */
         #winner-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); display: none;
-            flex-direction: column; justify-content: center; align-items: center; z-index: 1000;
+            background: rgba(0,0,0,0.95); display: none; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 1000;
         }
         .winner-card {
-            background: linear-gradient(135deg, #222, #000); padding: 4rem;
-            border-radius: 40px; text-align: center; border: 4px solid var(--gold);
-            box-shadow: 0 0 100px var(--gold); transform: scale(0);
+            background: #000; padding: 4rem; border-radius: 40px; text-align: center;
+            border: 4px solid var(--gold); box-shadow: 0 0 100px var(--gold); transform: scale(0);
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>สุ่มหาผู้โชคดี</h1>
+<div id="loginOverlay">
+    <div class="login-box" id="loginBox">
+        <h3>🔒 ใส่รหัสผ่านเพื่อเข้าใช้งาน</h3>
+        <input type="password" id="passInput" placeholder="******">
+        <button class="btn-login" onclick="checkPassword()">ENTER</button>
+    </div>
+</div>
+
+<div class="container" id="mainApp">
+    <h1>สุ่มรายชื่อหาผู้โชคดี</h1>
     
     <div class="controls">
         <button class="btn-tool" onclick="toggleInput()">✏️ จัดการรายชื่อ</button>
@@ -126,42 +137,49 @@
     
     <div class="slot-container">
         <div id="slotWrapper" class="slot-wrapper">
-            <div class="slot-item">พร้อมสุ่ม</div>
+            <div class="slot-item">พร้อมสุ่มหาผู้โชคดี?</div>
         </div>
     </div>
 
     <button id="spinBtn" class="btn-spin" onclick="startSpin()">เริ่มหมุน!</button>
 </div>
 
-<div class="history-container">
-    <div style="color:var(--gold); font-weight:bold; margin-bottom:15px">ผู้โชคดี (<span id="winCount">0</span>)</div>
+<div class="history-container" id="historyApp">
+    <div style="color:var(--gold); font-weight:bold; margin-bottom:15px">รายชื่อผู้ได้รับรางวัล(<span id="winCount">0</span>)</div>
     <div id="winnerList"></div>
 </div>
 
 <div id="winner-overlay">
     <div class="winner-card" id="winCard">
         <h2 style="color: var(--gold); letter-spacing: 5px;">ผู้โชคดีคือ</h2>
-        <p id="winnerName" style="font-size: 4.5rem; font-weight: 800; margin: 20px 0; color: white; text-shadow: 0 0 30px var(--gold);"></p>
-        <div style="color: var(--accent); font-size: 1.2rem;">ขอแสดงความยินดีด้วย!</div>
+        <p id="winnerName" style="font-size: 4.5rem; font-weight: 800; margin: 20px 0; color: white;"></p>
+        <div style="color: var(--accent); font-size: 1.2rem;">ยินดีด้วยคุณได้รับรางวัล!</div>
     </div>
 </div>
 
 <script>
-    const nameInput = document.getElementById('nameInput');
-    const slotWrapper = document.getElementById('slotWrapper');
-    const spinBtn = document.getElementById('spinBtn');
-    const winnerOverlay = document.getElementById('winner-overlay');
-    const winnerName = document.getElementById('winnerName');
-    const winnerListUI = document.getElementById('winnerList');
-    const winCountUI = document.getElementById('winCount');
-
+    const PASS = "878556";
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-    function playTickSound(rate) {
+    function checkPassword() {
+        const input = document.getElementById('passInput');
+        const box = document.getElementById('loginBox');
+        if (input.value === PASS) {
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('historyApp').style.display = 'block';
+        } else {
+            box.classList.add('shake');
+            input.value = "";
+            setTimeout(() => box.classList.remove('shake'), 400);
+        }
+    }
+
+    // ฟังก์ชันเสียงและระบบสุ่ม (เหมือนเดิม แต่ปรับให้ Easing ช้าลุ้นระทึก)
+    function playTickSound() {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.type = 'sine';
         osc.frequency.setValueAtTime(800, audioCtx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.05);
         gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
@@ -169,19 +187,25 @@
     }
 
     function toggleInput() {
-        nameInput.style.display = (nameInput.style.display === 'none' || nameInput.style.display === '') ? 'block' : 'none';
+        const ni = document.getElementById('nameInput');
+        ni.style.display = (ni.style.display === 'none' || ni.style.display === '') ? 'block' : 'none';
     }
 
     function resetAll() {
         if(confirm("ล้างข้อมูลทั้งหมด?")) {
-            nameInput.value = ""; winnerListUI.innerHTML = ""; winCountUI.textContent = "0";
-            slotWrapper.innerHTML = '<div class="slot-item">READY?</div>';
+            document.getElementById('nameInput').value = "";
+            document.getElementById('winnerList').innerHTML = "";
+            document.getElementById('winCount').textContent = "0";
         }
     }
 
     function startSpin() {
+        const nameInput = document.getElementById('nameInput');
+        const slotWrapper = document.getElementById('slotWrapper');
+        const spinBtn = document.getElementById('spinBtn');
         const names = nameInput.value.trim().split('\n').filter(n => n.trim() !== '');
-        if (names.length === 0) return alert('กรุณาใส่รายชื่อก่อนครับ');
+        
+        if (names.length === 0) return alert('ใส่รายชื่อก่อนครับ');
 
         spinBtn.disabled = true;
         nameInput.style.display = 'none';
@@ -189,12 +213,9 @@
         const winnerIndex = Math.floor(Math.random() * names.length);
         const winner = names[winnerIndex];
 
-        // สร้างรายการหมุน (เพิ่มความยาวเพื่อให้หมุนได้นานขึ้น)
         let displayList = [];
-        for(let i=0; i<60; i++) {
-            displayList.push(names[Math.floor(Math.random() * names.length)]);
-        }
-        displayList.push(winner); // ชื่อผู้ชนะอยู่ท้ายสุด
+        for(let i=0; i<60; i++) displayList.push(names[Math.floor(Math.random() * names.length)]);
+        displayList.push(winner);
 
         slotWrapper.innerHTML = '';
         displayList.forEach(name => {
@@ -204,66 +225,48 @@
             slotWrapper.appendChild(div);
         });
 
-        const duration = 7000; // เพิ่มเวลาเป็น 7 วินาทีเพื่อให้เห็นจังหวะหน่วงชัดๆ
-        const itemHeight = 120;
-        const totalTravel = (displayList.length - 1) * itemHeight;
-
-        // เริ่มหมุน
+        const duration = 7000;
         slotWrapper.style.transition = 'none';
         slotWrapper.style.transform = 'translateY(0)';
 
-        // ใช้ Custom Cubic Bezier เพื่อการหยุดที่ค่อยเป็นค่อยไป (ลุ้นสุดๆ)
         setTimeout(() => {
             slotWrapper.style.transition = `transform ${duration}ms cubic-bezier(0.1, 0, 0, 1)`;
-            slotWrapper.style.transform = `translateY(-${totalTravel}px)`;
+            slotWrapper.style.transform = `translateY(-${(displayList.length - 1) * 120}px)`;
         }, 50);
 
-        // จัดการเสียงติ๊กๆ ให้ช้าลงตามความเร็ว
         let startTime = Date.now();
         function tick() {
             let elapsed = Date.now() - startTime;
             let progress = elapsed / duration;
-            
             if (progress < 1) {
                 playTickSound();
-                // สูตรคำนวณจังหวะเสียง: ยิ่ง progress มาก จังหวะยิ่งห่าง (exponential)
-                let nextTick = 50 + (Math.pow(progress, 3) * 800); 
-                setTimeout(tick, nextTick);
+                setTimeout(tick, 50 + (Math.pow(progress, 3) * 800));
             }
         }
         tick();
 
         setTimeout(() => {
-            showWinner(winner, names, winnerIndex);
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            document.getElementById('winnerName').textContent = winner;
+            document.getElementById('winner-overlay').style.display = 'flex';
+            document.getElementById('winCard').style.transform = 'scale(1)';
+            document.getElementById('winCard').style.transition = '0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+
+            const li = document.createElement('div');
+            li.className = 'winner-entry';
+            li.textContent = `⭐ ${winner}`;
+            document.getElementById('winnerList').prepend(li);
+            document.getElementById('winCount').textContent = document.getElementById('winnerList').children.length;
+
+            names.splice(winnerIndex, 1);
+            nameInput.value = names.join('\n');
+
+            setTimeout(() => {
+                document.getElementById('winner-overlay').style.display = 'none';
+                document.getElementById('winCard').style.transform = 'scale(0)';
+                spinBtn.disabled = false;
+            }, 5000);
         }, duration + 500);
-    }
-
-    function showWinner(winner, names, index) {
-        // พลุ
-        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-        
-        winnerName.textContent = winner;
-        winnerOverlay.style.display = 'flex';
-        const card = document.getElementById('winCard');
-        card.style.transform = 'scale(1)';
-        card.style.transition = '0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-
-        // อัปเดตประวัติ
-        const div = document.createElement('div');
-        div.className = 'winner-entry';
-        div.textContent = `⭐ ${winner}`;
-        winnerListUI.prepend(div);
-        winCountUI.textContent = winnerListUI.children.length;
-
-        // ลบชื่อ
-        names.splice(index, 1);
-        nameInput.value = names.join('\n');
-
-        setTimeout(() => {
-            winnerOverlay.style.display = 'none';
-            card.style.transform = 'scale(0)';
-            spinBtn.disabled = false;
-        }, 5000);
     }
 </script>
 
